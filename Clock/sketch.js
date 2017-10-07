@@ -42,15 +42,19 @@ function draw() {
 	var minHandY = minHandLen * sin(minAngle);
 	var secHandY = secHandLen * sin(secAngle);
 	
+	// Draw hour hand	
 	stroke(255);
 	line(0, 0, hourHandX, hourHandY);
 	
+	// Draw minute hand
 	stroke(255);
 	line(0, 0, minHandX, minHandY);
 	
+	// Draw second hand	
 	stroke(235, 185, 23);
 	line(0, 0, secHandX, secHandY);
 	
+	// Draw a dot in the center
 	stroke(0);	
 	point(0, 0);
 	
