@@ -7,6 +7,8 @@ var cpuSpeed = 3;
 var playerScore = 0;
 var cpuScore = 0;
 
+var drawRetro = true;
+
 function setup() {
 	createCanvas(800, 600);
 	
@@ -56,7 +58,14 @@ function draw() {
 	drawDottedLine(); // Do this last for maximum retro.
 }
 
+function keyPressed() {
+	if (keyCode === 32) {
+		drawRetro = !drawRetro;
+	}
+}
+
 function drawScore() {
+	fill(255);
 	var fontsize = 72;
 	textFont("Courier New", fontsize);
 	textAlign(CENTER, CENTER);
@@ -70,10 +79,16 @@ function drawDottedLine() {
 		rect(width/2 - 10, i, 15, 30);
 	}
 	
+	if (!drawRetro) {
+		return;
+	}
+	
+	console.log("hey");
 	fill(0);
-
 	for (var i = 0; i < height; i = i + 5) {
 		rect(0, i, width, 2);
 	}
 	fill(255);
+	
+	
 }
