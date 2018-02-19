@@ -77,10 +77,10 @@ function draw() {
 		ball.position.x = paddle.position.x;
 	}
 	
-	ball.bounce(wallTop, ballHitOtherWall);
-	ball.bounce(wallLeft, ballHitOtherWall);
-	ball.bounce(wallRight, ballHitOtherWall);
-	ball.bounce(wallBottom, ballHitBottom);
+	ball.bounce(wallTop, ballHitWall);
+	ball.bounce(wallLeft, ballHitWall);
+	ball.bounce(wallRight, ballHitWall);
+	ball.bounce(wallBottom, ballHitWall);
 	
 	ball.bounce(paddle, ballHitPaddle);
 	ball.bounce(bricks, ballHitBrick);
@@ -124,14 +124,14 @@ function ballHitPaddle(ball, paddle) {
 	beep(beepFreq * 8, 0.05);
 }
 
-function ballHitOtherWall(ball, wall) {
-	beep(beepFreq * 4, 0.05);
-}
-
-function ballHitBottom(ball, wall) {
-	ball.setSpeed(0, 0);
-	ball.position.x = paddle.position.x;
-	ball.position.y = BALL_DEFAULT_Y;
-	ballInPlay = false;
-	beep(beepFreq, 0.5);	
+function ballHitWall(ball, wall) {
+	if (wall == wallBottom) {
+		ball.setSpeed(0, 0);
+		ball.position.x = paddle.position.x;
+		ball.position.y = BALL_DEFAULT_Y;
+		ballInPlay = false;
+		beep(beepFreq, 0.5);
+	} else {
+		beep(beepFreq * 4, 0.05);
+	}
 }
