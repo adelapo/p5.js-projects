@@ -3,10 +3,6 @@ function Snake(startBody) {
 	this.direction = "right";
 	this.counter = 0;
 	
-	this.chooseDirection = function() {		
-		this.direction = "right";
-	}
-	
 	this.moveSnake = function() {
 		nextSegment = this.getSegment(this.direction);
 		
@@ -16,6 +12,10 @@ function Snake(startBody) {
 		} else {
 			snake.body.pop();
 		}
+	}
+	
+	this.grow = function() {
+		this.counter += 1;
 	}
 	
 	this.getSegment = function(direc) {

@@ -9,6 +9,8 @@ function setup() {
 	snake = new Snake(startBody);
 	
 	spawnApple();
+	
+	// noStroke();
 }
 
 function draw() {
@@ -17,6 +19,11 @@ function draw() {
 	fill(0, 200, 0);
 	for (var seg of snake.body) {
 		drawSquareAt(seg[0], seg[1]);
+	}
+	
+	if (snake.contains(apple)) {
+		spawnApple();
+		snake.grow();
 	}
 	
 	fill(0, 255, 0);
@@ -38,6 +45,5 @@ function spawnApple() {
 }
 
 function keyPressed() {
-	snake.chooseDirection();
 	snake.moveSnake();
 }
