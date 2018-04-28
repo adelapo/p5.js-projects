@@ -2,6 +2,8 @@ var squareSize = 40;
 var snake;
 var apple;
 
+var path = [];
+
 function setup() {
 	createCanvas(800, 800);
 	
@@ -9,6 +11,7 @@ function setup() {
 	snake = new Snake(startBody);
 	
 	spawnApple();
+	path = getPath(apple);
 	
 	// noStroke();
 }
@@ -24,6 +27,12 @@ function draw() {
 	if (snake.contains(apple)) {
 		spawnApple();
 		snake.grow();
+		path = getPath(apple);
+	}
+	
+	for (var sq of path) {
+		fill("orange");
+		drawSquareAt(sq[0], sq[1]);
 	}
 	
 	fill(0, 255, 0);
@@ -32,8 +41,20 @@ function draw() {
 	fill(255, 0, 0);
 	drawSquareAt(apple[0], apple[1]);
 	
-	// snake.chooseDirection();
-	// snake.moveSnake();
+	nextInPath = path.shift();
+	head = snake.body[0];
+	
+	if (head[0] == nextInPath[0] && head[1] - 1 == nextInPath[1]) {
+		snake.direction = "up";
+	} else if (head[0] == nextInPath[0] && head[1] + 1 == nextInPath[1]) {
+		snake.direction = "down";
+	} else if (head[0] - 1 == nextInPath[0] && head[1] == nextInPath[1]) {
+		snake.direction = "left";
+	} else if (head[0] + 1 == nextInPath[0] && head[1] == nextInPath[1]) {
+		snake.direction = "right";
+	}
+
+	snake.moveSnake();
 }
 
 function drawSquareAt(x, y) {
@@ -45,9 +66,78 @@ function spawnApple() {
 }
 
 function keyPressed() {
+	path = getPath(apple);
 	snake.moveSnake();
 }
 
-function getPath() {
+function getDist(a, b) {
+	return abs(a[0] - b[0]) + abs(a[1] - b[1]);
+}
+
+function getPath(apple) {
+	head = snake.body[0];
 	
+	// Dijkstra's algorithm
+	
+	pq = new Queue(); // Create a new queue	
+	src = new QItem(head, 0); // The snake's head is the source node
+	pq.enqueue(src); // Add the snake's head to the queue
+	
+	visitedNodes = [];
+	parents = new Map(); // they keys will be string versions of the coordinates (sorry)
+	
+	parents.set("" + head, "none");
+	
+	while (pq.items.length > 0 && pq.items.length < 400) { // Algorithm terminates if the queue is empty
+		minItem = pq.dequeue(); // Take the element with the least priority off the queue		
+		minElem = minItem.element; // Get its position
+		
+		if (minElem[0] == apple[0] && minElem[1] == apple[1]) {
+			console.log(parents);
+			path = [apple];
+			current = apple;
+			while (parents.get("" + current) != "none") {
+				current = parents.get("" + current);
+				path.unshift(current);
+			}
+			console.log(path);
+			path.shift();
+			return path;
+		}
+		
+		visitedNodes.push(minElem); // Mark expanded node as visited
+		
+		// Get adjacent nodes		
+		north = [minElem[0], minElem[1] - 1];
+		south = [minElem[0], minElem[1] + 1];
+		west = [minElem[0] - 1, minElem[1]];
+		east = [minElem[0] + 1, minElem[1]];
+		
+		adj = [];
+		for (var dir of [north, south, west, east]) {
+			visited = false;
+			for (var node of visitedNodes) {
+				if (dir[0] == node[0] && dir[1] == node[1]) {
+					visited = true;
+				}
+			}
+			if (!visited) {
+				adj.push(dir);
+			}
+		}
+		
+		for (var adjacentNode of adj) {
+			// If the adjacent node isn't part of the snake,
+			// and either we haven't seen it yet or it's closer than previously seen,
+			// then enqueue the adjacent node.
+			if (!snake.contains(adjacentNode) && minItem.priority + 1 < pq.getPriorityOfArray(adjacentNode)) {
+				qitem = new QItem(adjacentNode, minItem.priority + 1);
+				pq.enqueue(qitem);
+				parents.set("" + adjacentNode, minElem);
+			}
+		}
+		
+	}
+	
+	return head;
 }
