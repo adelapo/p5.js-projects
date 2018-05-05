@@ -42,6 +42,12 @@ function draw() {
 	drawSquareAt(apple[0], apple[1]);
 	
 	nextInPath = path.shift();
+	
+	if (nextInPath == undefined) {
+		nextInPath = [head];
+		path = getPath(apple);
+	}
+	
 	head = snake.body[0];
 	
 	if (head[0] == nextInPath[0] && head[1] - 1 == nextInPath[1]) {
@@ -65,16 +71,17 @@ function spawnApple() {
 	apple = [int(random(width / squareSize)), int(random(height / squareSize))];
 }
 
-function keyPressed() {
-	path = getPath(apple);
-	snake.moveSnake();
-}
-
 function getDist(a, b) {
 	return abs(a[0] - b[0]) + abs(a[1] - b[1]);
 }
 
 function getPath(apple) {
+	if (snake.contains(apple)) {
+		console.log("Already have apple since it's at (" + apple[0] + ", " + apple[1] + ").");
+		return [head];
+	}
+	
+	
 	head = snake.body[0];
 	
 	// Dijkstra's algorithm
@@ -89,18 +96,16 @@ function getPath(apple) {
 	parents.set("" + head, "none");
 	
 	while (pq.items.length > 0 && pq.items.length < 400) { // Algorithm terminates if the queue is empty
-		minItem = pq.dequeue(); // Take the element with the least priority off the queue		
+		minItem = pq.dequeue(); // Take the element with the least priority off the queue
 		minElem = minItem.element; // Get its position
 		
 		if (minElem[0] == apple[0] && minElem[1] == apple[1]) {
-			console.log(parents);
 			path = [apple];
 			current = apple;
 			while (parents.get("" + current) != "none") {
 				current = parents.get("" + current);
 				path.unshift(current);
 			}
-			console.log(path);
 			path.shift();
 			return path;
 		}
@@ -121,7 +126,7 @@ function getPath(apple) {
 					visited = true;
 				}
 			}
-			if (!visited) {
+			if (!visited && !snake.contains(dir)) {
 				adj.push(dir);
 			}
 		}
@@ -130,7 +135,7 @@ function getPath(apple) {
 			// If the adjacent node isn't part of the snake,
 			// and either we haven't seen it yet or it's closer than previously seen,
 			// then enqueue the adjacent node.
-			if (!snake.contains(adjacentNode) && minItem.priority + 1 < pq.getPriorityOfArray(adjacentNode)) {
+			if (minItem.priority + 1 < pq.getPriorityOfArray(adjacentNode)) {
 				qitem = new QItem(adjacentNode, minItem.priority + 1);
 				pq.enqueue(qitem);
 				parents.set("" + adjacentNode, minElem);
@@ -139,5 +144,7 @@ function getPath(apple) {
 		
 	}
 	
-	return head;
+	console.log("Failed queue length is " + pq.items.length + " and apple pos is (" + apple[0] + ", " + apple[1] + ").");
+	
+	return [head];
 }
